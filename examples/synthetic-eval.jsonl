@@ -1,0 +1,3 @@
+{"question":"How many research documents are in the synthetic benchmark?", "document":"synthetic-paper.pdf", "page":1, "answer_contains":["120"], "route":"text"}
+{"question":"Which evaluation metric does the fictional study use?", "document":"synthetic-paper.pdf", "page":1, "answer_contains":["hit", "five"], "route":"text"}
+{"question":"In Figure 1, which bar is taller, Aspen or Cedar?", "document":"synthetic-paper.pdf", "page":2, "answer_contains":["Cedar"], "route":"vision"}

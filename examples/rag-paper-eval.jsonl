@@ -1,0 +1,6 @@
+{"question":"In the abstract, which corpus is used as the non-parametric memory index?", "document":"rag-original.pdf", "page":1, "answer_contains":["wikipedia"], "route":"text"}
+{"question":"In Figure 1, what search algorithm finds the top-K documents?", "document":"rag-original.pdf", "page":2, "answer_contains":["MIPS", "maximum inner product"], "route":"vision"}
+{"question":"How does RAG-Sequence differ from RAG-Token in the choice of retrieved documents?", "document":"rag-original.pdf", "page":3, "answer_contains":["same document", "different document"], "route":"text"}
+{"question":"Which model components are fine-tuned while the document index is kept fixed?", "document":"rag-original.pdf", "page":4, "answer_contains":["query encoder", "BART"], "route":"text"}
+{"question":"According to Table 1, what is the NQ score for RAG-Sequence?", "document":"rag-original.pdf", "page":6, "answer_contains":["44.5"], "route":"vision"}
+{"question":"In the caption of Figure 2, which document has a high posterior when generating A Farewell to Arms?", "document":"rag-original.pdf", "page":7, "answer_contains":["document 1", "doc 1"], "route":"vision"}
