@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "literature-qa-agent"
+version = "0.1.0"
+description = "Local multimodal literature question answering with page-level citations"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+dependencies = [
+  "pypdf>=6.0,<7", "pypdfium2>=5.0,<6", "Pillow>=10,<13",
+  "langgraph>=1,<2"
+]
+
+[project.optional-dependencies]
+model = ["torch>=2.5,<3", "torchvision>=0.20,<1", "transformers==4.57.3", "accelerate>=1,<2"]
+demo = ["reportlab>=4,<5"]
+dev = ["pytest>=8,<10", "reportlab>=4,<5"]
+
+[project.scripts]
+paper-agent = "literature_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
