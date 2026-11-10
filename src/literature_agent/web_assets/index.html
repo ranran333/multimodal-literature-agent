@@ -1,1 +1,121 @@
-<!-- Web interface assets will be added in the next commit. -->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>文献问答</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="文献库">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><strong>文献问答</strong><small>RESEARCH ASSISTANT</small></div>
+      </div>
+
+      <div class="sidebar-body">
+        <div class="section-heading"><span>我的文献</span><span id="doc-count">0</span></div>
+        <div class="upload-zone" id="upload-zone">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 15V4m-4 4 4-4 4 4M5 15v4.5h14V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <strong>添加论文</strong>
+          <span>拖入 PDF，或点击选择文件</span>
+          <input id="file-input" type="file" accept="application/pdf,.pdf" multiple aria-label="选择要上传的 PDF">
+          <button class="upload-trigger" id="upload-trigger" type="button">选择 PDF</button>
+        </div>
+        <label class="visual-option" for="visual-index">
+          <input type="checkbox" id="visual-index">
+          <span><b>增强图表检索</b><small>逐页分析图表，处理时间较长</small></span>
+        </label>
+        <p class="upload-hint" id="upload-hint">单份不超过 50 MB、100 页</p>
+
+        <div class="library-heading"><span>文献范围</span></div>
+        <button class="doc-item selected" id="all-docs" type="button" aria-pressed="true">
+          <span class="doc-icon all-icon" aria-hidden="true">▤</span>
+          <span class="doc-name"><b>全部文献</b><small id="all-docs-detail">尚未添加文献</small></span>
+        </button>
+        <div class="document-list" id="document-list"></div>
+      </div>
+
+      <div class="sidebar-footer"><span class="privacy-dot"></span><span>论文与问答保存在本地服务器</span></div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div><h1>文献问答</h1><p id="scope-label">上传论文后开始提问</p></div>
+        <div class="header-actions">
+          <span class="status" id="status"><i></i><span>正在连接</span></span>
+          <button id="clear-chat" class="icon-button" type="button" title="清空当前对话" aria-label="清空当前对话">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M9 6V4h6v2m3 0-.7 13H6.7L6 6m4 4v5m4-5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="conversation" id="conversation" role="log" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <div class="welcome-symbol" aria-hidden="true"><span></span><span></span><span></span></div>
+          <p class="eyebrow">READ WITH EVIDENCE</p>
+          <h2>从一篇论文开始</h2>
+          <p>上传 PDF，提出关于正文、图表或表格的问题。<br>回答会附上可查看的原文页码。</p>
+          <div class="suggestions" aria-label="示例问题">
+            <button type="button" data-prompt="这篇论文的核心方法是什么？">这篇论文的核心方法是什么？<span>↗</span></button>
+            <button type="button" data-prompt="请解释图 1 中展示了什么。">解释一下图 1<span>↗</span></button>
+            <button type="button" data-prompt="这篇论文的主要实验结论是什么？">总结主要实验结论<span>↗</span></button>
+          </div>
+        </div>
+        <div class="messages" id="messages"></div>
+      </div>
+
+      <div class="composer-wrap">
+        <form class="composer" id="question-form">
+          <label class="sr-only" for="question">输入问题</label>
+          <textarea id="question" rows="1" maxlength="2000" placeholder="围绕论文内容提问…"></textarea>
+          <div class="composer-actions">
+            <label class="mode-label" for="answer-mode">回答方式</label>
+            <select id="answer-mode" aria-label="回答方式">
+              <option value="auto">自动选择</option>
+              <option value="text">只读文字</option>
+              <option value="vision">读取页面图像</option>
+            </select>
+            <span class="composer-spacer"></span>
+            <span class="keyboard-hint">Enter 发送 · Shift + Enter 换行</span>
+            <button class="send-button" id="send-button" type="submit" aria-label="发送问题" disabled>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </form>
+        <p class="composer-note">每次提问独立检索，回答请结合引用核对。</p>
+      </div>
+    </main>
+
+    <aside class="source-panel" id="source-panel" aria-label="来源与原文">
+      <div class="source-header">
+        <div><h2>来源与原文</h2><p>点击回答下方的引用查看</p></div>
+        <button class="icon-button close-preview" id="close-preview" type="button" aria-label="关闭原文预览">×</button>
+      </div>
+      <div class="source-empty" id="source-empty">
+        <div class="page-symbol" aria-hidden="true"><span></span><span></span><span></span></div>
+        <h3>原文在这里</h3>
+        <p>选择一条引用，即可查看<br>它对应的论文页面。</p>
+      </div>
+      <div class="source-content" id="source-content" hidden>
+        <div class="source-meta">
+          <span class="source-kicker">引用来源</span>
+          <h3 id="source-name"></h3>
+          <div class="page-controls">
+            <button id="prev-page" type="button" aria-label="上一页">‹</button>
+            <span id="page-label"></span>
+            <button id="next-page" type="button" aria-label="下一页">›</button>
+            <a id="open-pdf" target="_blank" rel="noopener noreferrer">打开 PDF ↗</a>
+          </div>
+        </div>
+        <div class="page-scroll"><img id="page-image" alt="论文原文页面预览"><p id="page-error" hidden></p></div>
+        <p class="source-note">显示的是 PDF 的物理页码，可能与论文印刷页码不同。</p>
+      </div>
+    </aside>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
