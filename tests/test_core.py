@@ -67,6 +67,21 @@ def test_visual_route_trace_and_valid_citation(index):
     assert [t["tool"] for t in result["trace"]] == ["retrieve", "route", "read_page_image", "answer"]
 
 
+def test_agent_accepts_verified_external_page_evidence(index, monkeypatch):
+    class FakeModel:
+        def generate(self, prompt, images=None, max_new_tokens=0):
+            return "A blue triangle is visible [E1]."
+    evidence = search(index, "blue triangle", top_k=1)
+    monkeypatch.setattr("literature_agent.agent.search", lambda *_a, **_k: (_ for _ in ()).throw(AssertionError()))
+    answer = ask(index, FakeModel(), "What is blue?", mode="text", retrieved_evidence=evidence,
+                 retrieval_backend="raganything")
+    assert answer["citations"][0]["page"] == 2
+    assert answer["trace"][0]["backend"] == "raganything"
+    evidence[0]["page"] = 999
+    with pytest.raises(ValueError, match="unknown document or page"):
+        ask(index, FakeModel(), "What is blue?", mode="text", retrieved_evidence=evidence)
+
+
 def test_invalid_citations_and_no_evidence_are_not_presented_as_grounded(index):
     class FakeModel:
         def generate(self, prompt, images=None, max_new_tokens=0):
@@ -94,6 +109,37 @@ def test_evaluation_reports_counts_and_page_hits(index, tmp_path):
     report = evaluate(index, data, top_k=1)
     assert report["retrieval_hit_at_k"] == {"value": 1.0, "n": 1}
     assert report["answer_string_match"] is None
+
+
+def test_evaluation_uses_document_and_any_verified_gold_page(index, tmp_path, monkeypatch):
+    data = tmp_path / "eval.jsonl"
+    data.write_text(json.dumps({"id": "q1", "question": "test", "document": "paper.pdf",
+                                "pages": [1, 2], "type": "figure"}) + "\n")
+    monkeypatch.setattr("literature_agent.evaluation.search", lambda *_args, **_kwargs: [
+        {"document": {"name": "other.pdf"}, "page": 1},
+        {"document": {"name": "paper.pdf"}, "page": 2},
+    ])
+    report = evaluate(index, data, top_k=4)
+    assert report["retrieval_hit_at_1"] == {"value": 0.0, "n": 1}
+    assert report["retrieval_hit_at_k"] == {"value": 1.0, "n": 1}
+    assert report["per_type"]["figure"]["retrieval_hit_at_k"]["value"] == 1.0
+
+
+def test_evaluation_document_scope_filters_other_papers(index, tmp_path, monkeypatch):
+    data = tmp_path / "eval.jsonl"
+    data.write_text(json.dumps({"question": "test", "document": "paper.pdf", "page": 1}) + "\n")
+    index["documents"].append({"id": "other", "name": "other.pdf", "path": index["documents"][0]["path"],
+                               "sha256": index["documents"][0]["sha256"]})
+    index["chunks"].append({"document_id": "other", "page": 1, "kind": "text", "text": "test"})
+    observed = []
+    def retrieve(scoped, *_args, **_kwargs):
+        observed.append(scoped)
+        return [{"document": scoped["documents"][0], "page": 1}]
+    monkeypatch.setattr("literature_agent.evaluation.search", retrieve)
+    report = evaluate(index, data, document_scoped=True)
+    assert report["document_scope"] == "selected_document"
+    assert [doc["name"] for doc in observed[0]["documents"]] == ["paper.pdf"]
+    assert all(chunk["document_id"] != "other" for chunk in observed[0]["chunks"])
 
 
 def test_visual_description_becomes_retrievable(index, tmp_path):
