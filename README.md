@@ -17,7 +17,7 @@ PDF → 分页与分块 ──────────────→ BM25 / 可
 - **Agent**：LangGraph 在文本与视觉路径间路由，记录检索页面、路由来源、读图和耗时；模型路由输出无法解析时使用关键词回退。
 - **回答与评测**：要求回答使用有效证据标签；无法给出有效标签时返回提示。提供页级 Hit@K、答案字符串匹配、路由和引用页面检查。标签有效不等于引文内容一定支持答案。
 
-该原型使用自建的解析与检索流程；**尚未集成 RAG-Anything，也未实现 LoRA/SFT**。代码 MIT 授权，模型和依赖遵循各自许可证。
+默认网页使用自建的解析与检索流程。项目另有一个独立的 **RAG-Anything 实验入口**，已用合成论文验证文字和图表问答，真实论文对照仍在进行；尚未实现 LoRA/SFT。代码 MIT 授权，模型和依赖遵循各自许可证。
 
 ## 安装
 
@@ -96,6 +96,12 @@ CUDA_VISIBLE_DEVICES=0 paper-agent ask 'What trend does Figure 2 show?' --mode a
 `--dense` 首次下载多语言编码模型，并在 CPU 上计算向量。建立视觉描述时不要更改正在运行的其他人的 GPU 任务。重建索引会完整处理输入 PDF；原始 PDF、索引、输出、权重和缓存默认不提交 Git。
 
 想逐步理解代码并自己动手验证？参见[中文实践指南](docs/LEARNING_GUIDE_zh.md)。
+
+## RAG-Anything 实验
+
+实验使用独立 Python 环境和存储目录：通过 MinerU 解析论文，在 RAG-Anything / LightRAG 中建立索引，再将检索到、能核实页码的内容交给现有 Agent。图表按图片处理，文字按页分块；缺少可靠页码或跨页的块不会被当作页面引用。当前实验入口在命令行，网页仍运行原有流程。
+
+隔离环境安装、运行命令、页码处理和已验证范围见 [RAG-Anything 实验说明](docs/RAG_ANYTHING_EXPERIMENT_zh.md)。[接入计划](docs/RAG_ANYTHING_PLAN_zh.md)和[当前方案的探索性基线](docs/RAG_ANYTHING_BASELINE_zh.md)记录了具体步骤、评测题目及结果。真实论文对照尚未完成，不能据此声称 RAG-Anything 有性能提升。
 
 ## 评测
 

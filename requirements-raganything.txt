@@ -1,0 +1,5 @@
+# Install in a separate environment after the main project and PyTorch.
+raganything==1.4.4
+lightrag-hku==1.4.16
+mineru[core]==3.4.5
+six==1.17.0
