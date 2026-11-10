@@ -35,6 +35,10 @@ class QwenVisionModel:
         parts = [{"type": "image", "image": image} for image in (images or [])]
         parts.append({"type": "text", "text": prompt})
         messages = [{"role": "user", "content": parts}]
+        return self.generate_messages(messages, max_new_tokens=max_new_tokens)
+
+    def generate_messages(self, messages: list[dict], max_new_tokens: int = 320) -> str:
+        """Generate from system/history/vision messages in the processor's native format."""
         batch = self.processor.apply_chat_template(messages, tokenize=True, add_generation_prompt=True,
                                                    return_dict=True, return_tensors="pt")
         batch = {k: v.to(self.device) if hasattr(v, "to") else v for k, v in batch.items()}

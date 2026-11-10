@@ -64,17 +64,30 @@ def _parse_answer(raw: str) -> tuple[str, list[int], bool]:
     return text.strip(), list(dict.fromkeys(cited)), malformed
 
 
-def build_graph(index: dict, model: Any, *, top_k: int = 4, encoder: Any = None, max_visual_pages: int = 2):
+def build_graph(index: dict, model: Any, *, top_k: int = 4, encoder: Any = None, max_visual_pages: int = 2,
+                retrieved_evidence: list[dict] | None = None, retrieval_backend: str = "baseline"):
     if not 1 <= max_visual_pages <= 5:
         raise ValueError("max_visual_pages must be between 1 and 5")
 
     def retrieve(state: AgentState):
         start = perf_counter()
-        vector = encoder([state["question"]])[0] if encoder is not None else None
-        evidence = search(index, state["question"], top_k=top_k, query_vector=vector)
+        if retrieved_evidence is None:
+            vector = encoder([state["question"]])[0] if encoder is not None else None
+            evidence = search(index, state["question"], top_k=top_k, query_vector=vector)
+        else:
+            docs = {doc["id"]: doc for doc in index["documents"]}
+            evidence = []
+            for item in retrieved_evidence[:top_k]:
+                doc = docs.get(item.get("document_id"))
+                page = item.get("page")
+                if (doc is None or isinstance(page, bool) or not isinstance(page, int) or
+                        not 1 <= page <= doc["pages"]):
+                    raise ValueError("Retrieved evidence has an unknown document or page")
+                evidence.append({**item, "document": doc})
         unique_documents = {item["document"]["id"]: item["document"] for item in evidence}
         verify_sources(list(unique_documents.values()))
         return {"evidence": evidence, "trace": [{"tool": "retrieve", "query": state["question"],
+                "backend": retrieval_backend,
                 "pages": [{"document": e["document"]["name"], "document_id": e["document"]["id"], "page": e["page"],
                            "kind": e["kind"], "excerpt": e["text"][:500]} for e in evidence],
                 "seconds": round(perf_counter() - start, 3)}]}
@@ -172,11 +185,13 @@ def build_graph(index: dict, model: Any, *, top_k: int = 4, encoder: Any = None,
 
 
 def ask(index: dict, model: Any, question: str, *, mode: str = "auto", top_k: int = 4,
-        encoder: Any = None, max_visual_pages: int = 2) -> dict:
+        encoder: Any = None, max_visual_pages: int = 2, retrieved_evidence: list[dict] | None = None,
+        retrieval_backend: str = "baseline") -> dict:
     if mode not in {"auto", "text", "vision"}:
         raise ValueError("mode must be auto, text or vision")
     if not question.strip():
         raise ValueError("Question cannot be empty")
     result = build_graph(index, model, top_k=top_k, encoder=encoder,
-                         max_visual_pages=max_visual_pages).invoke({"question": question, "mode": mode})
+                         max_visual_pages=max_visual_pages, retrieved_evidence=retrieved_evidence,
+                         retrieval_backend=retrieval_backend).invoke({"question": question, "mode": mode})
     return {key: result.get(key) for key in ("question", "route", "answer", "citations", "trace")}

@@ -69,10 +69,11 @@ def parser() -> argparse.ArgumentParser:
     chat.add_argument("--max-visual-pages", type=int, default=2)
 
     evaluate = sub.add_parser("evaluate", help="Evaluate annotated page retrieval; optional model QA")
-    evaluate.add_argument("dataset", help="JSONL with question, document, page and optional answer_contains/route")
+    evaluate.add_argument("dataset", help="JSONL with question, document, page or pages and optional answer_contains/route")
     evaluate.add_argument("--index", default="data/processed/index.json")
     evaluate.add_argument("--top-k", type=int, default=5)
     evaluate.add_argument("--qa", action="store_true", help="Also generate answers and score string matches")
+    evaluate.add_argument("--scope-document", action="store_true", help="Restrict each question to its labelled document, as when selecting one paper in the web UI")
     evaluate.add_argument("--model", default=DEFAULT_VLM)
     evaluate.add_argument("--device", default="auto")
     evaluate.add_argument("--output", help="Write report to JSON")
@@ -145,7 +146,10 @@ def main(argv: list[str] | None = None) -> int:
             if args.qa:
                 from .models import QwenVisionModel
                 model = QwenVisionModel(args.model, args.device)
-            report = evaluate(index, Path(args.dataset), top_k=args.top_k, model=model, encoder=_encoder(index))
+            report = evaluate(index, Path(args.dataset), top_k=args.top_k, model=model, encoder=_encoder(index),
+                              document_scoped=args.scope_document,
+                              progress=lambda number, total: print(f"Evaluating {number}/{total}",
+                                                                   file=sys.stderr, flush=True))
             if args.output:
                 destination = Path(args.output)
                 destination.parent.mkdir(parents=True, exist_ok=True)
