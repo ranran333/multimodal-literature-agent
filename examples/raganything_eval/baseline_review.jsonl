@@ -1,0 +1,19 @@
+{"id":"clip-text-01","answer_correct":true,"correct_and_supported":true,"note":"400 million；引用第 1 页摘要。"}
+{"id":"clip-figure-01","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"clip-figure-02","answer_correct":false,"correct_and_supported":false,"note":"绿色曲线是对比学习方法；回答描述了另一方法。"}
+{"id":"clip-text-02","answer_correct":true,"correct_and_supported":false,"note":"Web Image Text 与参考答案含义一致；引用的第 45 页没有展开 WIT。"}
+{"id":"clip-text-03","answer_correct":true,"correct_and_supported":true,"note":"32,768；引用第 5 页训练设置。"}
+{"id":"clip-figure-03","answer_correct":true,"correct_and_supported":true,"note":"两项损失取平均；引用第 5 页伪代码。"}
+{"id":"clip-table-01","answer_correct":true,"correct_and_supported":true,"note":"58.5；引用第 7 页表 1。"}
+{"id":"clip-figure-04","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"clip-figure-05","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"vit-text-01","answer_correct":false,"correct_and_supported":false,"note":"把内部 JFT-300M 当成了题目所问的公开数据集。"}
+{"id":"vit-figure-01","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"vit-text-02","answer_correct":true,"correct_and_supported":true,"note":"位置编码；引用第 3 页方法部分。"}
+{"id":"vit-table-01","answer_correct":true,"correct_and_supported":true,"note":"12 层；引用第 5 页表 1。"}
+{"id":"vit-table-02","answer_correct":true,"correct_and_supported":true,"note":"632M；引用第 5 页表 1。"}
+{"id":"vit-table-03","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"vit-figure-02","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"vit-figure-03","answer_correct":false,"correct_and_supported":false,"note":"未给出有效答案。"}
+{"id":"vit-text-03","answer_correct":true,"correct_and_supported":true,"note":"约 2–4 倍；引用第 8 页，自动字符串匹配因符号差异漏判。"}
+{"id":"vit-table-04","answer_correct":false,"correct_and_supported":false,"note":"回答 512，但题目对应的训练设置为 4096。"}

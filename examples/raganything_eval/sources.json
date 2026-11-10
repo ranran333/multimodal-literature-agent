@@ -1,0 +1,22 @@
+{
+  "status": "draft",
+  "purpose": "Small exploratory, page-grounded comparison; not a population benchmark.",
+  "documents": [
+    {
+      "filename": "vit.pdf",
+      "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "source": "https://arxiv.org/abs/2010.11929",
+      "pdf_url": "https://arxiv.org/pdf/2010.11929",
+      "pages": 22,
+      "sha256": "8ce7b83971a14508ca711a27c875c9b6914c4f6767cf3150fb1ca6c07aa056d6"
+    },
+    {
+      "filename": "clip.pdf",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "source": "https://arxiv.org/abs/2103.00020",
+      "pdf_url": "https://arxiv.org/pdf/2103.00020",
+      "pages": 48,
+      "sha256": "6478b6e571a7d6fcd846d8ef77bfd60c285f1986abb8f475eedc43de403074f5"
+    }
+  ]
+}
