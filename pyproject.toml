@@ -25,5 +25,8 @@ paper-agent = "literature_agent.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+literature_agent = ["web_assets/*.html", "web_assets/*.css", "web_assets/*.js"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

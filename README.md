@@ -39,6 +39,30 @@ python -m pip install -e '.[model]'
 
 如果已用 Conda 在项目内创建环境，先激活该环境，再执行安装命令即可。
 
+## 网页界面
+
+网页可上传 PDF、选择单篇或全部文献提问，并在点击引用后预览对应原文页。每个问题独立检索；页面中显示的是 PDF 物理页码。
+
+在 Linux 或 macOS 上启动服务。以下以项目内已有模型为例；先用 `nvidia-smi` 查看空闲显卡，按实际情况替换编号：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 paper-agent web \
+  --model models/Qwen2.5-VL-3B-Instruct \
+  --embedding-model models/multilingual-MiniLM
+```
+
+服务默认创建仅当前系统用户可访问的 `data/web/agent.sock`。如果服务在远程服务器上，在**本机另一个终端**建立 SSH 隧道，将下面的路径和主机名换成实际值：
+
+```bash
+ssh -N -L 127.0.0.1:8765:/absolute/path/to/project/data/web/agent.sock user@server
+```
+
+保持隧道终端运行，再用本机浏览器访问 `http://127.0.0.1:8765`。服务和隧道分别可以用 `Ctrl+C` 停止。套接字路径过长时，可以通过 `paper-agent web --socket /较短路径/agent.sock` 指定其他路径，并在隧道命令中使用相同路径。
+
+单份 PDF 上限为 50 MB、100 页。默认建立文本和多语言向量索引；上传时可选择“增强图表检索”，逐页生成视觉描述，这需要加载视觉模型并可能耗费较长时间。未开启时，图表问题仍可读取检索到的页面图片，但页面定位主要依赖现有文本。模型首次提问时加载并在进程内复用。
+
+上传文件和网页索引保存在 `data/web/`，不提交到 Git。使用已有本地模型时，问答不调用远程模型 API。当前网页是单用户研究原型，不提供用户管理；不要将 SSH 转发绑定到公共网络。
+
 ## 最小演示
 
 演示文档由脚本生成，数据和图表完全虚构：
