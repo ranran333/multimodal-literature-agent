@@ -39,13 +39,14 @@
         <div class="document-list" id="document-list"></div>
       </div>
 
-      <div class="sidebar-footer"><span class="privacy-dot"></span><span>论文与问答保存在本地服务器</span></div>
+      <div class="sidebar-footer"><span class="privacy-dot"></span><span>论文保存在服务器本地</span></div>
     </aside>
 
     <main class="workspace">
       <header class="workspace-header">
         <div><h1>文献问答</h1><p id="scope-label">上传论文后开始提问</p></div>
         <div class="header-actions">
+          <button id="open-tech" class="tech-trigger" type="button" aria-haspopup="dialog" aria-controls="tech-dialog">技术说明</button>
           <span class="status" id="status"><i></i><span>正在连接</span></span>
           <button id="clear-chat" class="icon-button" type="button" title="清空当前对话" aria-label="清空当前对话">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M9 6V4h6v2m3 0-.7 13H6.7L6 6m4 4v5m4-5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -116,6 +117,43 @@
       </div>
     </aside>
   </div>
+  <dialog class="tech-dialog" id="tech-dialog" aria-labelledby="tech-title">
+    <div class="tech-sheet">
+      <header class="tech-header">
+        <div><p class="tech-kicker">关于这个项目</p><h2 id="tech-title">技术说明</h2></div>
+        <button class="tech-close" id="close-tech" type="button" aria-label="关闭技术说明">×</button>
+      </header>
+      <div class="tech-body">
+        <p class="tech-lead">这个项目把论文放在服务器上处理，让人提问时能看到答案对应的原文。</p>
+
+        <section class="tech-section">
+          <h3>一篇论文是怎么被处理的</h3>
+          <p>上传 PDF 后，程序按页提取文字并切块，每一块都记下文件名和页码。勾选“增强图表检索”时，还会让视觉模型逐页描述图表，再把描述加入索引。</p>
+        </section>
+
+        <section class="tech-section">
+          <h3>提问以后发生了什么</h3>
+          <p>程序先结合关键词和多语言向量找出相关页面，再判断问题是否需要看图。如果需要，就把候选页面转成图片，交给服务器上的 Qwen2.5-VL 阅读。最后，它根据找到的内容回答，并附上来源页码。</p>
+          <p>引用可以点击查看 PDF。页码是 PDF 阅读器中的顺序页码，不一定等于论文印在页脚的页码；答案和引用是否对应，仍需要对照原文检查。</p>
+        </section>
+
+        <section class="tech-section tech-experiment">
+          <div class="tech-section-heading"><h3>RAG-Anything 接入与基线评测</h3><span class="tech-badge">进行中</span></div>
+          <p>先选了 ViT 和 CLIP 两篇公开论文，整理 19 道正文、表格和图表问题，并为每题标注答案和原文页码。测试时先选定对应论文，再用关键词与多语言向量找出前 4 个候选页面；这次没有开启逐页图表描述。</p>
+          <p>初步结果是 12 / 19 道题找到了标注页，其中图表题为 2 / 8。这是自己整理的小样本，标注和测试口径在首轮后有过修正；找到页面也不代表回答一定正确。</p>
+          <p>再把模型回答和引用页逐条对照论文，9 / 19 道题答对，其中 8 道的引用页也支持答案。这轮核对尚未经独立复核。</p>
+          <p>接入时另建了一套环境：用 RAG-Anything 调用 MinerU 解析论文，再接上服务器里的 Qwen 和多语言向量模型。文字按页分开建索引，图表交给视觉模型处理；找不到可靠页码的内容不会作为引用返回。</p>
+          <p>目前先用两页自造论文试通了文字和图表问题，答案分别引用了第 1 页和第 2 页。真实论文已开始处理，接下来会用上面同一批问题对照检索、回答和耗时。</p>
+          <p class="tech-note">网页问答目前仍使用原有流程；这里的 RAG-Anything 是独立实验，真实论文的对照结果尚未完成。</p>
+        </section>
+
+        <section class="tech-section">
+          <h3>模型在哪里运行</h3>
+          <p>论文处理和模型推理运行在启动服务的机器上。这个演示把服务部署在服务器，电脑通过 SSH 隧道打开网页。当前每个问题独立检索；刷新页面后，屏幕上的对话会清空，已上传的论文仍保存在服务器。</p>
+        </section>
+      </div>
+    </div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>

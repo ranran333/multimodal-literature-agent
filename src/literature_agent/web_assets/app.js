@@ -263,6 +263,9 @@ for (const button of document.querySelectorAll("[data-prompt]")) {
   button.addEventListener("click", () => { $("question").value = button.dataset.prompt; $("question").focus(); refreshControls(); });
 }
 $("clear-chat").addEventListener("click", () => { $("messages").replaceChildren(); $("welcome").hidden = false; });
+$("open-tech").addEventListener("click", () => $("tech-dialog").showModal());
+$("close-tech").addEventListener("click", () => $("tech-dialog").close());
+$("tech-dialog").addEventListener("click", (event) => { if (event.target === $("tech-dialog")) $("tech-dialog").close(); });
 $("close-preview").addEventListener("click", () => $("source-panel").classList.remove("open"));
 $("prev-page").addEventListener("click", () => state.page && showPage(state.page.id, state.page.number - 1));
 $("next-page").addEventListener("click", () => state.page && showPage(state.page.id, state.page.number + 1));
