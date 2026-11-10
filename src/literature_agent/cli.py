@@ -76,6 +76,13 @@ def parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--model", default=DEFAULT_VLM)
     evaluate.add_argument("--device", default="auto")
     evaluate.add_argument("--output", help="Write report to JSON")
+
+    web = sub.add_parser("web", help="Launch a local web interface")
+    web.add_argument("--socket", help="Private Unix socket (default: DATA_DIR/agent.sock)")
+    web.add_argument("--data-dir", default="data/web", help="Private uploads and index directory")
+    web.add_argument("--model", default=DEFAULT_VLM)
+    web.add_argument("--embedding-model", default=DEFAULT_EMBEDDING)
+    web.add_argument("--device", default="auto", help="auto, cpu, or cuda:0 (after CUDA_VISIBLE_DEVICES)")
     return p
 
 
@@ -126,6 +133,11 @@ def main(argv: list[str] | None = None) -> int:
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
                 _print(result)
+        elif args.command == "web":
+            from .web import serve
+            serve(socket_path=Path(args.socket) if args.socket else None,
+                  data_dir=Path(args.data_dir), model_name=args.model,
+                  embedding_model=args.embedding_model, device=args.device)
         else:
             from .evaluation import evaluate
             index = load_index(Path(args.index))
